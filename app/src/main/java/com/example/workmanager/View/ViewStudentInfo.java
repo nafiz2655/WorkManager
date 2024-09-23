@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.workmanager.Adapter.MyAdapter;
+import com.example.workmanager.DataBasesHelper.RetrofitHelper;
 import com.example.workmanager.DataBasesHelper.RoomHelper;
 import com.example.workmanager.Model.GetDataModel;
 import com.example.workmanager.R;
@@ -48,6 +49,8 @@ public class ViewStudentInfo extends AppCompatActivity {
     RoomHelper roomHelper;
     @Inject
     boolean isNetworkConnected;
+    @Inject
+    RetrofitHelper retrofitHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +87,7 @@ public class ViewStudentInfo extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        myAdapter = new MyAdapter(arrayList, this,isNetworkConnected);
+        myAdapter = new MyAdapter(arrayList, this,isNetworkConnected,retrofitHelper);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(myAdapter);
     }

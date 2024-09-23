@@ -7,7 +7,6 @@ import android.net.NetworkInfo;
 import com.example.workmanager.DataBasesHelper.RoomHelper;
 import com.example.workmanager.Model.GetDataModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -25,17 +24,12 @@ public class DataRepository {
     Call<List<GetDataModel>> provideGetData;
     @Inject
     boolean isNetworkConnected;
-
-    public DataRepository(Context context) {
-        this.context = context;
-    }
-
+    @Inject
     public DataRepository(Context context, RoomHelper roomHelper, Call<List<GetDataModel>> provideGetData) {
         this.context = context;
         this.roomHelper = roomHelper;
         this.provideGetData = provideGetData;
     }
-
 
     // Define a callback interface
     public interface DataCallback {
@@ -68,10 +62,13 @@ public class DataRepository {
             @Override
             public void onResponse(Call<List<GetDataModel>> call, Response<List<GetDataModel>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<GetDataModel> studentList = response.body();
+                    List<GetDataModel> networkDataList = response.body();
+
+                    // Fetch all local data before processing
+                    List<GetDataModel> localDataList = roomHelper.readAllData();
 
                     // Loop through the data received from the API
-                    for (GetDataModel networkData : studentList) {
+                    for (GetDataModel networkData : networkDataList) {
                         // Check if the data already exists in the Room database
                         GetDataModel existingData = roomHelper.getDataById(networkData.getId());  // Assuming you have a method like this in RoomHelper
 
@@ -81,9 +78,19 @@ public class DataRepository {
                         } else if (!existingData.equals(networkData)) {
                             // Data exists but has been updated, so update it
                             roomHelper.updateDataRoom(networkData);
-                        }
-                        // If the data already exists and is the same, do nothing
+                        }/*else  if (!networkDataList.contains(networkData)) {
+                            // Delete local data if it's no longer present on the server
+                            roomHelper.deleteData(networkData);
+                        }*/
                     }
+
+                /*    // Identify and delete any local data not in the server response
+                   for (GetDataModel localData : localDataList) {
+                        if (!networkDataList.contains(localData)) {
+                            // Delete local data if it's no longer present on the server
+                            roomHelper.deleteData(localData);
+                        }
+                    }*/
 
                     // Return all the data (newly added + existing) to the callback
                     callback.onSuccess(roomHelper.readAllData());
@@ -99,11 +106,10 @@ public class DataRepository {
         });
     }
 
-
+    // Method to check the internet connectivity status
     private boolean checkInternet() {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnected();
     }
-
 }

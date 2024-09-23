@@ -1,6 +1,7 @@
 package com.example.workmanager.DataBasesHelper;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -26,6 +27,9 @@ public interface RoomHelper {
 
     @Update
     void updateDataRoom(GetDataModel getDataModel);  // Update method
+
+    @Delete
+    void deleteData(GetDataModel getDataModel);
 
 
 

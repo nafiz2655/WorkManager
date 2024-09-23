@@ -3,6 +3,8 @@ package com.example.workmanager.Model;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.util.Objects;
+
 @Entity
 public class GetDataModel {
 
@@ -92,5 +94,20 @@ public class GetDataModel {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    ///
+    // Overriding equals and hashCode
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        GetDataModel that = (GetDataModel) obj;
+        return id == that.id;  // Compare using ID
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id); // Hash based on ID
     }
 }
